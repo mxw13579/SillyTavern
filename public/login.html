@@ -44,6 +44,10 @@
                             <img src="img/logo.png" alt="SillyTavern" class="logo">
                             <span>Welcome to SillyTavern</span>
                         </h2>
+                        <div class="tab-container flex-container flexGap10" style="margin-bottom: 20px;">
+                            <div id="tabLogin" class="menu_button tab_button">登录</div>
+                            <div id="tabRegister" class="menu_button tab_button">注册</div>
+                        </div>
                         <h3 id="normalLoginPrompt">
                             Select an Account
                         </h3>
@@ -75,6 +79,19 @@
                                 </div>
                             </div>
                         </div>
+                        <div id="registerBlock" class="flex-container flexFlowColumn alignItemsCenter" style="margin-top:20px; display:none;">
+                            <h3>创建新用户</h3>
+                            <form id="registerForm" class="flex-container flexFlowColumn alignItemsCenter" autocomplete="off">
+                                <input id="registerName" name="name" class="text_pole" type="text" placeholder="昵称" required>
+                                <input id="registerHandle" name="handle" class="text_pole" type="text" placeholder="用户名" required>
+                                <input id="registerPassword" name="password" class="text_pole" type="password" placeholder="密码" required>
+                                <input id="registerConfirm" name="confirm" class="text_pole" type="password" placeholder="确认密码" required>
+                                <div class="flex-container flexGap10">
+                                    <button type="submit" class="menu_button">注册</button>
+                                </div>
+                            </form>
+                            <div id="registerError" class="neutral_warning"></div>
+                        </div>
                         <div class="neutral_warning" id="errorMessage">
                         </div>
                     </div>
@@ -85,6 +102,31 @@
 
     <script src="lib/jquery-3.5.1.min.js"></script>
     <script src="scripts/login.js"></script>
+    <script>
+    $(function(){
+        function switchTab(tab) {
+            if(tab === 'login') {
+                $('#tabLogin').addClass('tab_active');
+                $('#tabRegister').removeClass('tab_active');
+                $('#normalLoginPrompt').show();
+                $('#discreetLoginPrompt').show();
+                $('#userListBlock').show();
+                $('#registerBlock').hide();
+            } else if(tab === 'register') {
+                $('#tabLogin').removeClass('tab_active');
+                $('#tabRegister').addClass('tab_active');
+                $('#normalLoginPrompt').hide();
+                $('#discreetLoginPrompt').hide();
+                $('#userListBlock').hide();
+                $('#registerBlock').show();
+            }
+        }
+        $('#tabLogin').on('click', function(){ switchTab('login'); });
+        $('#tabRegister').on('click', function(){ switchTab('register'); });
+        // 默认显示登录tab
+        switchTab('login');
+    });
+    </script>
 </body>
 
 </html>

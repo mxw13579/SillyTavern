@@ -5,7 +5,16 @@ import express from 'express';
 import { RateLimiterMemory, RateLimiterRes } from 'rate-limiter-flexible';
 import { getIpFromRequest, getRealIpFromHeader } from '../express-common.js';
 import { color, Cache, getConfigValue } from '../util.js';
-import { KEY_PREFIX, getUserAvatar, toKey, getPasswordHash, getPasswordSalt } from '../users.js';
+import {
+    KEY_PREFIX,
+    getUserAvatar,
+    toKey,
+    getPasswordHash,
+    getPasswordSalt,
+    requireAdminMiddleware, getAllUserHandles, ensurePublicDirectoriesExist, getUserDirectories,
+} from '../users.js';
+import lodash from 'lodash';
+import { checkForNewContent, CONTENT_TYPES } from './content-manager.js';
 
 const DISCREET_LOGIN = getConfigValue('enableDiscreetLogin', false, 'boolean');
 const PREFER_REAL_IP_HEADER = getConfigValue('rateLimiting.preferRealIpHeader', false, 'boolean');
@@ -194,6 +203,58 @@ router.post('/recover-step2', async (request, response) => {
         }
 
         console.error('Recover step 2 failed:', error);
+        return response.sendStatus(500);
+    }
+});
+
+router.post('/home-create', async (request, response) => {
+    console.log('CREATE /api/users/create request.user:', request.user, 'session:', request.session);
+    try {
+        if (!request.body.handle || !request.body.name) {
+            console.warn('Create user failed: Missing required fields');
+            return response.status(400).json({ error: 'Missing required fields' });
+        }
+
+        const handles = await getAllUserHandles();
+        const handle = lodash.kebabCase(String(request.body.handle).toLowerCase().trim());
+
+        if (!handle) {
+            console.warn('Create user failed: Invalid handle');
+            return response.status(400).json({ error: 'Invalid handle' });
+        }
+
+
+        if (handles.some(x => x === handle)) {
+            console.warn('Create user failed: User with that handle already exists');
+            return response.status(409).json({ error: 'User already exists' });
+        }
+
+        const salt = getPasswordSalt();
+        const password = request.body.password ? getPasswordHash(request.body.password, salt) : '';
+
+        console.log(handle);
+        console.log(request.body.name);
+        console.log(password);
+        const newUser = {
+            handle: handle,
+            name: request.body.name || 'Anonymous',
+            created: Date.now(),
+            password: password,
+            salt: salt,
+            admin: !!request.body.admin,
+            enabled: true,
+        };
+
+        await storage.setItem(toKey(handle), newUser);
+
+        // Create user directories
+        console.info('Creating data directories for', newUser.handle);
+        await ensurePublicDirectoriesExist();
+        const directories = getUserDirectories(newUser.handle);
+        await checkForNewContent([directories], [CONTENT_TYPES.SETTINGS]);
+        return response.json({ handle: newUser.handle });
+    } catch (error) {
+        console.error('User create failed:', error);
         return response.sendStatus(500);
     }
 });

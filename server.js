@@ -221,10 +221,12 @@ app.use(webpackMiddleware);
 app.use(express.static(process.cwd() + '/public', {}));
 
 // Public API
+app.use('/api/users', (req, res, next) => { console.log('收到 /api/users 请求', req.method, req.url); next(); });
 app.use('/api/users', usersPublicRouter);
 
 // Everything below this line requires authentication
 app.use(requireLoginMiddleware);
+app.use('/api/users', (req, res, next) => { console.log('收到 /api/users（需登录）请求', req.method, req.url); next(); });
 app.get('/api/ping', (request, response) => {
     if (request.query.extend && request.session) {
         request.session.touch = Date.now();

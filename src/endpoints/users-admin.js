@@ -156,6 +156,7 @@ router.post('/demote', requireAdminMiddleware, async (request, response) => {
 });
 
 router.post('/create', requireAdminMiddleware, async (request, response) => {
+    console.log('CREATE /api/users/create request.user:', request.user, 'session:', request.session);
     try {
         if (!request.body.handle || !request.body.name) {
             console.warn('Create user failed: Missing required fields');

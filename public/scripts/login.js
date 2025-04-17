@@ -259,7 +259,7 @@ function configureDiscreetLogin() {
     });
 }
 
-(async function () {
+$(document).ready(async function () {
     csrfToken = await getCsrfToken();
     const userList = await getUserList();
 
@@ -279,4 +279,68 @@ function configureDiscreetLogin() {
             }
         }
     });
-})();
+    // 注册表单逻辑
+    $('#registerForm').on('submit', async function (e) {
+        e.preventDefault();
+        const name = String($('#registerName').val()).trim();
+        const handle = String($('#registerHandle').val()).trim();
+        const password = String($('#registerPassword').val());
+        const confirm = String($('#registerConfirm').val());
+        $('#registerError').text('');
+        if (!name) {
+            $('#registerError').text('昵称不能为空');
+            return;
+        }
+        if (!handle) {
+            $('#registerError').text('用户名不能为空');
+            return;
+        }
+        if (!password) {
+            $('#registerError').text('密码不能为空');
+            return;
+        }
+        if (password !== confirm) {
+            $('#registerError').text('两次输入的密码不一致');
+            return;
+        }
+        try {
+            const response = await fetch('/api/users/home-create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken,
+                },
+                body: JSON.stringify({ handle,name, password }),
+            });
+            if (!response.ok) {
+                if (response.status === 403) {
+                    $('#registerError').text('注册失败：权限不足或CSRF校验失败');
+                    return;
+                }
+                let data = null;
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    $('#registerError').text('注册失败：服务器返回异常');
+                    return;
+                }
+                $('#registerError').text(data && data.error ? data.error : '注册失败');
+                return;
+            }
+            $('#registerError').text('注册成功，请登录');
+            setTimeout(function () {
+                $('#registerForm')[0].reset();
+                $('#registerError').text('');
+                $('#registerBlock').hide();
+                $('#userListBlock').show();
+            }, 1000);
+        } catch (error) {
+            $('#registerError').text('注册异常: ' + error);
+        }
+    });
+    // 默认显示注册和登录切换逻辑（可根据需要添加按钮切换）
+    $('#registerBlock').hide();
+    // 可选：添加切换按钮
+    // $('#showRegister').on('click', function(){ $('#userListBlock').hide(); $('#registerBlock').show(); });
+    // $('#showLogin').on('click', function(){ $('#registerBlock').hide(); $('#userListBlock').show(); });
+});
