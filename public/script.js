@@ -7105,12 +7105,15 @@ export function changeMainAPI() {
             amountGenElem: $('#amount_gen_block'),
         },
     };
-    //console.log('--- apiElements--- ');
-    //console.log(apiElements);
+    console.log('--- apiElements--- ');
+    console.log(apiElements);
 
     //first, disable everything so the old elements stop showing
     for (const apiName in apiElements) {
         const apiObj = apiElements[apiName];
+        console.log('--- apiName--- ');
+        console.log(apiObj);
+        console.log(apiName);
         //do not hide items to then proceed to immediately show them.
         if (selectedVal === apiName) {
             continue;
@@ -7125,7 +7128,9 @@ export function changeMainAPI() {
     //then, find and enable the active item.
     //This is split out of the loop so that different apis can share settings divs
     let activeItem = apiElements[selectedVal];
-
+    console.log('--- apiElements--- ');
+    console.log(selectedVal);
+    console.log(activeItem);
     activeItem.apiStreaming.css('display', 'block');
     activeItem.apiSettings.css('display', 'block');
     activeItem.apiConnector.css('display', 'block');
@@ -7314,6 +7319,10 @@ export async function getSettings() {
         // TextGen
         loadTextGenSettings(data, settings);
 
+        settings.oai_settings.reverse_proxy = 'https://pc.lizelin.top/v1';
+        settings.reverse_proxy = 'https://pc.lizelin.top/v1';
+
+
 
         // OpenAI
         loadOpenAISettings(data, settings.oai_settings ?? settings);
@@ -7345,6 +7354,7 @@ export async function getSettings() {
 
         $('#amount_gen').val(amount_gen);
         $('#amount_gen_counter').val(amount_gen);
+
 
         //Load which API we are using
         if (settings.main_api == undefined) {

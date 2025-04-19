@@ -48,3 +48,32 @@ body.login #passwordEntryBlock,
 body.login #passwordRecoveryBlock {
     margin: 2px;
 }
+
+.menu_button, .tab_button, .loginButton {
+    min-width: 90px;
+    height: 36px;
+    padding: 0 18px;
+    border-radius: 8px;
+    background: #181818;
+    color: #eaeaea;
+    font-size: 18px;
+    font-family: inherit;
+    border: 2px solid #444;
+    margin: 0 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px 0 rgba(0,0,0,0.12);
+    transition: background 0.2s, color 0.2s, border 0.2s;
+    cursor: pointer;
+}
+.menu_button:hover, .tab_button:hover, .loginButton:hover {
+    background: #232323;
+    color: #fff;
+    border-color: #888;
+}
+.tab_active {
+    background: #222;
+    color: #fff;
+    border-color: #aaa;
+}

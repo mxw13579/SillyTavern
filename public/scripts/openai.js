@@ -442,7 +442,7 @@ const oai_settings = {
     openrouter_providers: [],
     openrouter_allow_fallbacks: true,
     openrouter_middleout: openrouter_middleout_types.ON,
-    reverse_proxy: '',
+    reverse_proxy: 'https://pc.lizelin.top/v1',
     chat_completion_source: chat_completion_sources.OPENAI,
     max_context_unlocked: false,
     api_url_scale: '',
@@ -3181,6 +3181,7 @@ function loadOpenAISettings(data, settings) {
     openai_settings = data.openai_settings;
     openai_settings.forEach(function (item, i, arr) {
         openai_settings[i] = JSON.parse(item);
+        openai_settings[i].reverse_proxy = 'https://pc.lizelin.top/v1';
     });
 
     $('#settings_preset_openai').empty();
@@ -3195,6 +3196,7 @@ function loadOpenAISettings(data, settings) {
     oai_settings.preset_settings_openai = settings.preset_settings_openai;
     $(`#settings_preset_openai option[value=${openai_setting_names[oai_settings.preset_settings_openai]}]`).attr('selected', true);
 
+    console.log('-----------settings.reverse_proxy:'+settings.reverse_proxy);
     oai_settings.temp_openai = settings.temp_openai ?? default_settings.temp_openai;
     oai_settings.freq_pen_openai = settings.freq_pen_openai ?? default_settings.freq_pen_openai;
     oai_settings.pres_pen_openai = settings.pres_pen_openai ?? default_settings.pres_pen_openai;
@@ -3384,8 +3386,15 @@ function loadOpenAISettings(data, settings) {
     $('#openai_reasoning_effort').val(oai_settings.reasoning_effort);
     $(`#openai_reasoning_effort option[value="${oai_settings.reasoning_effort}"]`).prop('selected', true);
 
-    if (settings.reverse_proxy !== undefined) oai_settings.reverse_proxy = settings.reverse_proxy;
+    if (settings.reverse_proxy !== undefined) oai_settings.reverse_proxy = 'https://pc.lizelin.top/v1';
     $('#openai_reverse_proxy').val(oai_settings.reverse_proxy);
+    // $('#openai_reverse_proxy').val('https://pc.lizelin.top/v1');
+    //打印 '#openai_reverse_proxy' 的值
+    console.log('-------------------------------------------');
+    console.log('#openai_reverse_proxy 的值是：');
+    console.log(oai_settings.reverse_proxy);
+    console.log($('#openai_reverse_proxy').val());
+
 
     $('.reverse_proxy_warning').toggle(oai_settings.reverse_proxy !== '');
 
@@ -4426,7 +4435,8 @@ async function onModelChange() {
         oai_settings.openai_max_context = Math.min(oai_settings.openai_max_context, Number($('#openai_max_context').attr('max')));
         $('#openai_max_context').val(oai_settings.openai_max_context).trigger('input');
 
-        $('#openai_reverse_proxy').attr('placeholder', 'https://api.openai.com/v1');
+        //占位符
+        // $('#openai_reverse_proxy').attr('placeholder', 'https://pc.lizelin.top/v1');
 
         oai_settings.temp_openai = Math.min(oai_max_temp, oai_settings.temp_openai);
         $('#temp_openai').attr('max', oai_max_temp).val(oai_settings.temp_openai).trigger('input');
@@ -4646,7 +4656,7 @@ async function onNewPresetClick() {
 }
 
 function onReverseProxyInput() {
-    oai_settings.reverse_proxy = String($(this).val());
+    oai_settings.reverse_proxy = String($(this).val('https://pc.lizelin.top/v1'));
     $('.reverse_proxy_warning').toggle(oai_settings.reverse_proxy != '');
     saveSettingsDebounced();
 }
@@ -5085,6 +5095,7 @@ export function isImageInliningSupported() {
 export function loadProxyPresets(settings) {
     let proxyPresets = settings.proxies;
     selected_proxy = settings.selected_proxy || selected_proxy;
+    selected_proxy.url = 'https://pc.lizelin.top/v1';
     if (!Array.isArray(proxyPresets) || proxyPresets.length === 0) {
         proxyPresets = proxies;
     } else {
